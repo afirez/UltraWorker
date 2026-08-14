@@ -1,0 +1,67 @@
+# ============================================================================
+# clawhip 配置示例：飞书直桥替换 Discord（不通过 OpenClaw）
+# 复制到 Windows：%USERPROFILE%\.clawhip\config.toml   （macOS/Linux：~/.clawhip/config.toml）
+#
+# 所有「发送方向」的通知路由都把 slack_webhook 指向本地飞书桥：
+#   http://127.0.0.1:8787/feishu
+# 桥收到 clawhip Slack 风格载荷 {"text": "..."} 后转成飞书消息（见 bridge/feishu-bridge.mjs）。
+# clawhip 是多投递路由：一个事件可同时命中多条路由（Discord 并行保留 / 审计落盘都可行）。
+#
+# RouteRule 字段与 clawhip 源码 src/config.rs 对齐：event / filter / sink / channel /
+# webhook / slack_webhook / local_path / mention / allow_dynamic_tokens / format / template / gajae。
+# 仅设置 slack_webhook 时 sink 自动判为 "slack"（effective_sink，src/config.rs:247-256）。
+# ============================================================================
+
+# ---- 发送方向：agent 生命周期 → 飞书（核心路由，保留原 Discord 通知的体验） ----
+# Codex/OMX 原生五事件（SessionStart/PreToolUse/PostToolUse/UserPromptSubmit/Stop → session.* 家族）
+[[routes]]
+event = "session.*"
+filter = { provider = "codex" }
+slack_webhook = "http://127.0.0.1:8787/feishu"
+format = "compact"
+
+# tmux 关键字监控（OMX/OMO 会话 FAILED/error/blocked 等）
+[[routes]]
+event = "tmux.*"
+slack_webhook = "http://127.0.0.1:8787/feishu"
+format = "alert"
+
+# GitHub CI 等事件
+[[routes]]
+event = "github.*"
+slack_webhook = "http://127.0.0.1:8787/feishu"
+format = "compact"
+
+# 自定义事件（clawhip send --channel any --message "hello"）
+[[routes]]
+event = "custom.*"
+slack_webhook = "http://127.0.0.1:8787/feishu"
+format = "compact"
+
+# ---- 接收方向：飞书消息进 clawhip 的审计（可选） ----
+# 桥把「普通消息 / !指令」POST 到 clawhip daemon /event（feishu.message / feishu.command），
+# 这里把它们落到本地 JSONL 审计，避免再把用户消息回声发回群里。
+# 注意：local_path 按字面使用，不做 %USERPROFILE% 之类的环境变量展开，请写完整 Windows 路径。
+[[routes]]
+event = "feishu.message"
+filter = { source = "feishu" }
+sink = "localfile"
+local_path = "C:\\Users\\你的用户名\\.clawhip\\events\\feishu.jsonl"
+format = "compact"
+
+[[routes]]
+event = "feishu.command"
+filter = { source = "feishu" }
+sink = "localfile"
+local_path = "C:\\Users\\你的用户名\\.clawhip\\events\\feishu.jsonl"
+format = "compact"
+
+# 若希望用户消息也原样回声到群里（与原版 clawhip-feishu 一致），把上面两条改为：
+#   slack_webhook = "http://127.0.0.1:8787/feishu"
+
+# ---- 兜底：其余事件落盘审计（可选） ----
+# [[routes]]
+# event = "*"
+# sink = "localfile"
+# local_path = "C:\\Users\\你的用户名\\.clawhip\\events\\all.jsonl"
+# format = "compact"

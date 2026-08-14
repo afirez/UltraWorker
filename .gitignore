@@ -1,0 +1,26 @@
+# ---- Node ----
+node_modules/
+*.log
+npm-debug.log*
+
+# ---- 环境变量（含密钥，勿提交） ----
+.env
+.env.local
+
+# ---- OMC 瞬态状态 ----
+.omc/state/
+.omc/logs/
+.omc/research/
+
+# ---- 运行时状态（OmO/OmX） ----
+.omo/
+.omx/
+
+# ---- OpenCode 备份 ----
+opencode.json.backup*
+opencode.json.bak*
+
+# ---- 临时/系统 ----
+.DS_Store
+Thumbs.db
+*.tmp

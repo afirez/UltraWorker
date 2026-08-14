@@ -1,0 +1,17 @@
+{
+  "name": "feishu-direct-bridge",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Bidirectional Feishu bridge replacing Discord for omx + clawhip toolchain (no OpenClaw). Based on afirez/clawhip-feishu feishu-bridge.mjs.",
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "scripts": {
+    "start": "node --env-file=.env feishu-bridge.mjs",
+    "start:direct": "node feishu-bridge.mjs"
+  },
+  "dependencies": {
+    "@larksuiteoapi/node-sdk": "^1.10.0"
+  }
+}
