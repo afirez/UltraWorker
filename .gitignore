@@ -24,3 +24,6 @@ opencode.json.bak*
 .DS_Store
 Thumbs.db
 *.tmp
+
+# ---- clawhip 运行时状态 ----
+.clawhip/
