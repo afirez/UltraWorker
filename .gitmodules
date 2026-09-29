@@ -1,0 +1,3 @@
+[submodule "win-bash-npm"]
+	path = win-bash-npm
+	url = https://github.com/afirez/win-bash-npm.git
